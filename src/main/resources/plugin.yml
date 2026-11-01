@@ -1,0 +1,12 @@
+name: StressNPC
+main: com.example.stressnpc.StressNPCPlugin
+version: 1.0.0
+api-version: 1.16
+author: Copilot
+description: Fake Player stress testing for Paper 1.16.5 with auto login, lobby automation, random NPC movement and stop controls
+
+commands:
+  stressnpc:
+    description: Stress NPC management commands
+    usage: /stressnpc <spawn|batch|lobby|join|setslot|click|gui|grant|stop|stopall|resume|resumeall>
+    permission: testserver.admin
