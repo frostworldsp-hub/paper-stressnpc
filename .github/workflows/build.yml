@@ -1,0 +1,45 @@
+name: Build Paper 1.16.5 plugin
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+
+      - name: Download BuildTools and build Spigot 1.16.5
+        run: |
+          curl -L -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+          java -jar BuildTools.jar --rev 1.16.5
+          ls -la
+
+      - name: Install Spigot artifact into local Maven repository
+        run: |
+          mvn install:install-file \
+            -Dfile=spigot-1.16.5-R0.1-SNAPSHOT.jar \
+            -DgroupId=org.spigotmc \
+            -DartifactId=spigot \
+            -Dversion=1.16.5-R0.1-SNAPSHOT \
+            -Dpackaging=jar
+
+      - name: Build plugin with Maven
+        run: mvn -B clean package
+
+      - name: Upload built JAR as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-stressnpc-jar
+          path: target/*.jar
