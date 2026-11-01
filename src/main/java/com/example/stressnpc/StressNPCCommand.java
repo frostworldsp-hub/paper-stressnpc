@@ -32,7 +32,17 @@ public class StressNPCCommand implements CommandExecutor {
         try {
             switch (args[0].toLowerCase()) {
                 case "spawn": {
+                    if (args.length < 2) {
+                        sender.sendMessage("§cUsage: /stressnpc spawn <count> [hotbarSlot] [menuSlot] [left|right] [serverName] [group]");
+                        return true;
+                    }
+
                     int count = Integer.parseInt(args[1]);
+                    if (count <= 0) {
+                        sender.sendMessage("§cCount must be greater than 0.");
+                        return true;
+                    }
+
                     int hotbarSlot = args.length > 2 ? Integer.parseInt(args[2]) : 0;
                     int menuSlot = args.length > 3 ? Integer.parseInt(args[3]) : 13;
                     boolean rightClick = args.length > 4 ? "right".equalsIgnoreCase(args[4]) : true;
@@ -44,7 +54,17 @@ public class StressNPCCommand implements CommandExecutor {
                 }
 
                 case "batch": {
+                    if (args.length < 5) {
+                        sender.sendMessage("§cUsage: /stressnpc batch <count> <delaySeconds> <hotbarSlot> <menuSlot> [left|right] [serverName] [group]");
+                        return true;
+                    }
+
                     int count = Integer.parseInt(args[1]);
+                    if (count <= 0) {
+                        sender.sendMessage("§cCount must be greater than 0.");
+                        return true;
+                    }
+
                     int delaySeconds = Integer.parseInt(args[2]);
                     int hotbarSlot = Integer.parseInt(args[3]);
                     int menuSlot = Integer.parseInt(args[4]);
