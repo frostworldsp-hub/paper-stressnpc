@@ -19,21 +19,34 @@ jobs:
         with:
           distribution: temurin
           java-version: '8'
+          cache: maven
 
-      - name: Download BuildTools and build Spigot 1.16.5
+      - name: Download BuildTools
         run: |
-          curl -L -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+          set -euxo pipefail
+          curl -fL --retry 3 --retry-delay 5 \
+            -o BuildTools.jar \
+            https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+          ls -lh BuildTools.jar
+
+      - name: Build Spigot 1.16.5
+        run: |
+          set -euxo pipefail
           java -jar BuildTools.jar --rev 1.16.5
-          ls -la
+          test -f spigot-1.16.5-R0.1-SNAPSHOT.jar
+          ls -lh spigot-1.16.5-R0.1-SNAPSHOT.jar
 
       - name: Install Spigot artifact into local Maven repository
         run: |
-          mvn install:install-file \
+          set -euxo pipefail
+          mvn -B install:install-file \
             -Dfile=spigot-1.16.5-R0.1-SNAPSHOT.jar \
             -DgroupId=org.spigotmc \
             -DartifactId=spigot \
             -Dversion=1.16.5-R0.1-SNAPSHOT \
-            -Dpackaging=jar
+            -Dpackaging=jar \
+            -DgeneratePom=true \
+            -DcreateChecksum=true
 
       - name: Build plugin with Maven
         run: mvn -B clean package
