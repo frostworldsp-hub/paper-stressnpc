@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -24,7 +25,8 @@ jobs:
       - name: Download BuildTools
         run: |
           set -euxo pipefail
-          curl -fL --retry 3 --retry-delay 5 \
+          curl -fL --retry 5 --retry-delay 10 \
+            -A "Mozilla/5.0" \
             -o BuildTools.jar \
             https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
           ls -lh BuildTools.jar
