@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -19,6 +20,29 @@ jobs:
           distribution: temurin
           java-version: '8'
           cache: maven
+
+      - name: Build Spigot 1.16.5 artifacts required by NMS imports
+        run: |
+          cd /tmp
+          curl -L --fail -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+          java -jar BuildTools.jar --rev 1.16.5
+
+      - name: Install the built Spigot jar into Maven local repo
+        run: |
+          JAR=$(find /tmp -type f \( -name 'spigot-1.16.5-R0.1-SNAPSHOT.jar' -o -name 'spigot-1.16.5-R0.1-SNAPSHOT-all.jar' \) | head -n 1)
+          if [ -z "$JAR" ]; then
+            echo "Spigot 1.16.5 jar not found after BuildTools."
+            find /tmp -maxdepth 4 -type f | head -n 200
+            exit 1
+          fi
+
+          mvn -B install:install-file \
+            -Dfile="$JAR" \
+            -DgroupId=org.spigotmc \
+            -DartifactId=spigot \
+            -Dversion=1.16.5-R0.1-SNAPSHOT \
+            -Dpackaging=jar \
+            -DgeneratePom=true
 
       - name: Compile plugin with Maven
         run: mvn -B clean package
